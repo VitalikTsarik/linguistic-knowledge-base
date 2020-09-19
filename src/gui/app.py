@@ -2,6 +2,7 @@ import sys
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 
+from constants import DICTIONARIES_PATH, TEXTS_PATH
 from dictionary.dictionary_model import DictionaryModel
 from dictionary.helpers import readTexts, mergeDicts, saveDictionary, openDictionary
 from gui.gen.main_window import Ui_MainWindow
@@ -28,14 +29,15 @@ class App(QMainWindow, Ui_MainWindow):
         self.tableView.setModel(DictionaryModel(records=records))
 
     def __onAddText(self):
-        filenames, _ = QFileDialog.getOpenFileNames(self, 'Open file', '', 'Text Files (*.txt)')
+        filenames, _ = QFileDialog.getOpenFileNames(self, 'Open file', TEXTS_PATH, 'Text Files (*.txt)')
         if len(filenames):
             textsData = readTexts(filenames)
             self.__dictionary = mergeDicts(self.__dictionary, textsData)
             self.__updateTable()
 
     def __onSaveAs(self):
-        filename, _ = QFileDialog.getSaveFileName(self, 'Save dictionary', '', 'Dictionary Files (*.dict)')
+        filename, _ = QFileDialog.getSaveFileName(self, 'Save dictionary', DICTIONARIES_PATH,
+                                                  'Dictionary Files (*.dict)')
         if filename:
             if not filename.endswith('.dict'):
                 filename += '.dict'
@@ -47,7 +49,8 @@ class App(QMainWindow, Ui_MainWindow):
         saveDictionary(self.__currentDictionaryFile, self.__dictionary)
 
     def __onOpen(self):
-        filename, _ = QFileDialog.getOpenFileName(self, 'Open dictionary', '', 'Dictionary Files (*.dict)')
+        filename, _ = QFileDialog.getOpenFileName(self, 'Open dictionary', DICTIONARIES_PATH,
+                                                  'Dictionary Files (*.dict)')
         if filename:
             self.__dictionary = openDictionary(filename)
             self.__currentDictionaryFile = filename
