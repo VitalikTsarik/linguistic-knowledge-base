@@ -2,6 +2,11 @@ import typing
 
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
 
+columnSortMap = {
+    0: lambda record: record[0].lower(),
+    1: lambda record: record[1],
+}
+
 
 class DictionaryModel(QAbstractTableModel):
     def __init__(self, *args, records=None, **kwargs):
@@ -15,7 +20,7 @@ class DictionaryModel(QAbstractTableModel):
 
     def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
         self.layoutAboutToBeChanged.emit()
-        self.__records.sort(key=lambda record: record[column], reverse=order == Qt.AscendingOrder)
+        self.__records.sort(key=columnSortMap.get(column), reverse=order == Qt.AscendingOrder)
         self.layoutChanged.emit()
 
     def rowCount(self, parent: QModelIndex = ...) -> int:
