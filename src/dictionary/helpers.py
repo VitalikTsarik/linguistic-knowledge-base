@@ -1,3 +1,4 @@
+import json
 import os
 import re
 
@@ -54,3 +55,8 @@ def mergeDicts(a, b):
     for key, value in b.items():
         result[key] = result.setdefault(key, 0) + value
     return result
+
+
+def saveDictionary(filename, dictionary):
+    with open(filename, 'w', encoding='utf-8') as file:
+        json.dump(dictionary, file)
