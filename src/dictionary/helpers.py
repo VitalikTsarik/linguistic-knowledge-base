@@ -60,3 +60,9 @@ def mergeDicts(a, b):
 def saveDictionary(filename, dictionary):
     with open(filename, 'w', encoding='utf-8') as file:
         json.dump(dictionary, file)
+
+
+def openDictionary(filename):
+    with open(filename, 'r', encoding='utf-8') as file:
+        dictionary = json.load(file)
+        return dictionary

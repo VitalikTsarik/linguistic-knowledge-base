@@ -3,7 +3,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 
 from dictionary.dictionary_model import DictionaryModel
-from dictionary.helpers import readTexts, mergeDicts, saveDictionary
+from dictionary.helpers import readTexts, mergeDicts, saveDictionary, openDictionary
 from gui.gen.main_window import Ui_MainWindow
 
 
@@ -17,6 +17,7 @@ class App(QMainWindow, Ui_MainWindow):
 
     def __initUI(self):
         self.actionAddText.triggered.connect(self.__onAddText)
+        self.actionOpen.triggered.connect(self.__onOpen)
         self.actionSave.setDisabled(True)
         self.actionSave.triggered.connect(self.__onSave)
         self.actionSaveAs.triggered.connect(self.__onSaveAs)
@@ -44,6 +45,14 @@ class App(QMainWindow, Ui_MainWindow):
 
     def __onSave(self):
         saveDictionary(self.__currentDictionaryFile, self.__dictionary)
+
+    def __onOpen(self):
+        filename, _ = QFileDialog.getOpenFileName(self, 'Open dictionary', '', 'Dictionary Files (*.dict)')
+        if filename:
+            self.__dictionary = openDictionary(filename)
+            self.__currentDictionaryFile = filename
+            self.actionSave.setDisabled(False)
+            self.__updateTable()
 
     def __onClose(self):
         self.__dictionary = {}
