@@ -1,14 +1,8 @@
 import typing
-from enum import IntEnum
-
-from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt, pyqtSignal, QAbstractItemModel
+from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt, pyqtSignal
 from PyQt5.QtWidgets import QStyledItemDelegate, QWidget
 
-
-class Columns(IntEnum):
-    word = 0
-    occurrence = 1
-
+from dictionary.constants import Columns
 
 HEADERS = ['Word', 'Occurrence']
 

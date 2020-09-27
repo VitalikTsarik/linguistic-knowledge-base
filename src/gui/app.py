@@ -4,16 +4,15 @@ from PyQt5.QtCore import QModelIndex
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 
 from constants import DICTIONARIES_PATH, TEXTS_PATH
+from dictionary.dictionary import Dictionary
 from dictionary.dictionary_model import DictionaryModel, ItemDelegate, Columns
-from dictionary.helpers import readTexts, mergeDicts, saveDictionary, openDictionary
 from gui.gen.main_window import Ui_MainWindow
 
 
 class App(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(App, self).__init__(parent)
-        self.__dictionary = {}
-        self.__currentDictionaryFile = None
+        self.__dictionary = Dictionary()
         self.setupUi(self)
         self.__initUI()
 
@@ -32,16 +31,15 @@ class App(QMainWindow, Ui_MainWindow):
     def __initTable(self):
         self.tableView.setItemDelegate(ItemDelegate(self))
         self.tableView.itemDelegate().itemEdited.connect(self.__onItemEdited)
+        self.__updateTable()
 
     def __updateTable(self):
-        records = [[key, value] for key, value in self.__dictionary.items()]
-        self.tableView.setModel(DictionaryModel(records=records))
+        self.tableView.setModel(DictionaryModel(records=self.__dictionary.tableRecords))
 
     def __onAddText(self):
         filenames, _ = QFileDialog.getOpenFileNames(self, 'Open file', TEXTS_PATH, 'Text Files (*.txt)')
         if len(filenames):
-            textsData = readTexts(filenames)
-            self.__dictionary = mergeDicts(self.__dictionary, textsData)
+            self.__dictionary.addTexts(filenames)
             self.__updateTable()
 
     def __onSaveAs(self):
@@ -50,35 +48,29 @@ class App(QMainWindow, Ui_MainWindow):
         if filename:
             if not filename.endswith('.dict'):
                 filename += '.dict'
-            saveDictionary(filename, self.__dictionary)
-            self.__currentDictionaryFile = filename
+            self.__dictionary.save(filename)
             self.actionSave.setDisabled(False)
 
     def __onSave(self):
-        saveDictionary(self.__currentDictionaryFile, self.__dictionary)
+        self.__dictionary.save()
 
     def __onOpen(self):
         filename, _ = QFileDialog.getOpenFileName(self, 'Open dictionary', DICTIONARIES_PATH,
                                                   'Dictionary Files (*.dict)')
         if filename:
-            self.__dictionary = openDictionary(filename)
-            self.__currentDictionaryFile = filename
+            self.__dictionary.readFromFile(filename)
             self.actionSave.setDisabled(False)
             self.__updateTable()
 
     def __onClose(self):
-        self.__dictionary = {}
-        self.__currentDictionaryFile = None
+        self.__dictionary.clear()
         self.actionSave.setDisabled(True)
         self.__updateTable()
 
     def __onItemEdited(self, word, index: QModelIndex):
         if index.column() == Columns.word.value:
-            self.__dictionary[index.data()] = self.__dictionary.setdefault(index.data(), 0) + self.__dictionary[word]
-            self.__dictionary.pop(word)
+            self.__dictionary.editWord(word, index.data())
             self.__updateTable()
-        elif index.column() == Columns.occurrence.value:
-            self.__dictionary[word] = str(index.data())
 
 
 def main():

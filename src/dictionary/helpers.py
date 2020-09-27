@@ -1,6 +1,8 @@
 import json
 import re
 
+from dictionary.constants import Keys
+
 
 def processRawTexts(filenames):
     result = []
@@ -31,7 +33,10 @@ def readTexts(filenames):
     words = processRawTexts(filenames)
     data = {}
     for word in words:
-        data[word] = data.setdefault(word, 0) + 1
+        if word in data.keys():
+            data[word][Keys.occurrence.value] += 1
+        else:
+            data[word] = {Keys.occurrence.value: 1}
 
     return data
 
@@ -39,7 +44,10 @@ def readTexts(filenames):
 def mergeDicts(a, b):
     result = a.copy()
     for key, value in b.items():
-        result[key] = result.setdefault(key, 0) + value
+        if key in result.keys():
+            result[key][Keys.occurrence.value] += value[Keys.occurrence.value]
+        else:
+            result[key] = {Keys.occurrence.value: value[Keys.occurrence.value]}
     return result
 
 
