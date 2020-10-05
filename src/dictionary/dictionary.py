@@ -31,6 +31,15 @@ class Dictionary:
     def textsNames(self):
         return listdir(self.__tempDir.name)
 
+    def addWord(self, word):
+        if word in self.__dictionary:
+            return False
+        self.__dictionary[word] = {Keys.occurrence.value: 0}
+        return True
+
+    def removeWord(self, word):
+        self.__dictionary.pop(word)
+
     @property
     def tableRecords(self):
         return [[key, value[Keys.occurrence.value]] for key, value in self.__dictionary.items()]

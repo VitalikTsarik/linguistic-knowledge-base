@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QAction
 from constants import DICTIONARIES_PATH, TEXTS_PATH
 from dictionary.dictionary import Dictionary
 from dictionary.dictionary_model import DictionaryModel, ItemDelegate, Columns
+from gui.dialogs.add_word_dialog import showAddWordDialog
 from gui.gen.main_window import Ui_MainWindow
 
 
@@ -20,6 +21,7 @@ class App(QMainWindow, Ui_MainWindow):
     def __initUI(self):
         self.__initMenu()
         self.__initTable()
+        self.addWordButton.clicked.connect(self.__onAddWordBtnClick)
 
     def __initMenu(self):
         self.actionAddText.triggered.connect(self.__onAddText)
@@ -91,6 +93,13 @@ class App(QMainWindow, Ui_MainWindow):
         if index.column() == Columns.word.value:
             self.__dictionary.editWord(word, index.data())
             self.__updateTable()
+
+    def __onAddWordBtnClick(self):
+        word = showAddWordDialog(self)
+        if word:
+            result = self.__dictionary.addWord(word)
+            if result:
+                self.__updateTable()
 
 
 def main():
