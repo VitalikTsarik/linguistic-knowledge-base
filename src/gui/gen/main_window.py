@@ -51,6 +51,8 @@ class Ui_MainWindow(object):
         self.menuFile.setObjectName("menuFile")
         self.menuText = QtWidgets.QMenu(self.menubar)
         self.menuText.setObjectName("menuText")
+        self.menuEditText = QtWidgets.QMenu(self.menuText)
+        self.menuEditText.setObjectName("menuEditText")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -70,6 +72,7 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionSaveAs)
         self.menuFile.addAction(self.actionClose)
         self.menuText.addAction(self.actionAddText)
+        self.menuText.addAction(self.menuEditText.menuAction())
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuText.menuAction())
 
@@ -80,7 +83,8 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
-        self.menuText.setTitle(_translate("MainWindow", "Base"))
+        self.menuText.setTitle(_translate("MainWindow", "Edit"))
+        self.menuEditText.setTitle(_translate("MainWindow", "Edit text"))
         self.actionOpen.setText(_translate("MainWindow", "Open..."))
         self.actionOpen.setShortcut(_translate("MainWindow", "Ctrl+O"))
         self.actionSave.setText(_translate("MainWindow", "Save"))

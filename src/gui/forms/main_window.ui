@@ -96,9 +96,15 @@
    </widget>
    <widget class="QMenu" name="menuText">
     <property name="title">
-     <string>Base</string>
+     <string>Edit</string>
     </property>
+    <widget class="QMenu" name="menuEditText">
+     <property name="title">
+      <string>Edit text</string>
+     </property>
+    </widget>
     <addaction name="actionAddText"/>
+    <addaction name="menuEditText"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuText"/>

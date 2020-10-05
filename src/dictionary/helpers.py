@@ -1,5 +1,7 @@
 import json
 import re
+from os import listdir
+from os.path import join
 
 from dictionary.constants import Keys
 
@@ -41,6 +43,11 @@ def readTexts(filenames):
     return data
 
 
+def readTextsFromDir(path):
+    filenames = [join(path, filename) for filename in listdir(path)]
+    return readTexts(filenames)
+
+
 def mergeDicts(a, b):
     result = a.copy()
     for key, value in b.items():
@@ -51,12 +58,19 @@ def mergeDicts(a, b):
     return result
 
 
-def saveDictionary(filename, dictionary):
+def saveToFile(filename, data):
     with open(filename, 'w', encoding='utf-8') as file:
-        json.dump(dictionary, file)
+        json.dump(data, file)
 
 
 def openDictionary(filename):
     with open(filename, 'r', encoding='utf-8') as file:
-        dictionary = json.load(file)
-        return dictionary
+        data = json.load(file)
+        dictionary = data['data']
+        texts = data['texts']
+        return dictionary, texts
+
+
+def saveTextToTempDir(textData, dirPath):
+    with open(join(dirPath, textData['name']), 'w', encoding='utf-8') as file:
+        file.write(textData['content'])

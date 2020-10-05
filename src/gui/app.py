@@ -1,7 +1,8 @@
 import sys
+from os.path import basename
 
 from PyQt5.QtCore import QModelIndex
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QAction
 
 from constants import DICTIONARIES_PATH, TEXTS_PATH
 from dictionary.dictionary import Dictionary
@@ -41,6 +42,18 @@ class App(QMainWindow, Ui_MainWindow):
         if len(filenames):
             self.__dictionary.addTexts(filenames)
             self.__updateTable()
+            self.__addTextMenuItems(filenames)
+
+    def __addTextMenuItems(self, filenames):
+        for filename in filenames:
+            textName = basename(filename)
+            action = QAction(textName, self.menuEditText)
+            action.triggered.connect(lambda chk, name=textName: self.__onEditText(name))
+            self.menuEditText.addAction(action)
+
+    def __onEditText(self, name):
+        self.__dictionary.editText(name)
+        self.__updateTable()
 
     def __onSaveAs(self):
         filename, _ = QFileDialog.getSaveFileName(self, 'Save dictionary', DICTIONARIES_PATH,
@@ -59,13 +72,20 @@ class App(QMainWindow, Ui_MainWindow):
                                                   'Dictionary Files (*.dict)')
         if filename:
             self.__dictionary.readFromFile(filename)
-            self.actionSave.setDisabled(False)
             self.__updateTable()
+
+            self.actionSave.setDisabled(False)
+            self.menuEditText.setDisabled(False)
+            self.menuEditText.clear()
+            self.__addTextMenuItems(self.__dictionary.textsNames)
 
     def __onClose(self):
         self.__dictionary.clear()
-        self.actionSave.setDisabled(True)
         self.__updateTable()
+
+        self.actionSave.setDisabled(True)
+        self.menuEditText.setDisabled(True)
+        self.menuEditText.clear()
 
     def __onItemEdited(self, word, index: QModelIndex):
         if index.column() == Columns.word.value:
