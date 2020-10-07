@@ -37,6 +37,11 @@ class DictionaryModel(QAbstractTableModel):
         self.layoutChanged.emit()
         return True
 
+    def updateRecords(self, newRecords):
+        self.layoutAboutToBeChanged.emit()
+        self.__records = newRecords
+        self.layoutChanged.emit()
+
     def rowCount(self, parent: QModelIndex = ...) -> int:
         return len(self.__records)
 

@@ -8,6 +8,7 @@ from constants import DICTIONARIES_PATH, TEXTS_PATH
 from dictionary.dictionary import Dictionary
 from dictionary.dictionary_model import DictionaryModel, ItemDelegate, Columns
 from gui.dialogs.add_word_dialog import showAddWordDialog
+from gui.dialogs.remove_word_confirm import showRemoveWordConfirm
 from gui.gen.main_window import Ui_MainWindow
 
 
@@ -22,6 +23,7 @@ class App(QMainWindow, Ui_MainWindow):
         self.__initMenu()
         self.__initTable()
         self.addWordButton.clicked.connect(self.__onAddWordBtnClick)
+        self.removeWordButton.clicked.connect(self.__onRemoveWordBtnClick)
 
     def __initMenu(self):
         self.actionAddText.triggered.connect(self.__onAddText)
@@ -34,10 +36,13 @@ class App(QMainWindow, Ui_MainWindow):
     def __initTable(self):
         self.tableView.setItemDelegate(ItemDelegate(self))
         self.tableView.itemDelegate().itemEdited.connect(self.__onItemEdited)
-        self.__updateTable()
+        self.tableView.setModel(DictionaryModel(records=self.__dictionary.tableRecords))
+        self.tableView.selectionModel().selectionChanged.connect(self.__onSelectionChange)
+        self.removeWordButton.setDisabled(True)
 
     def __updateTable(self):
-        self.tableView.setModel(DictionaryModel(records=self.__dictionary.tableRecords))
+        self.tableView.model().updateRecords(self.__dictionary.tableRecords)
+        self.tableView.selectionModel().clearSelection()
 
     def __onAddText(self):
         filenames, _ = QFileDialog.getOpenFileNames(self, 'Open file', TEXTS_PATH, 'Text Files (*.txt)')
@@ -100,6 +105,20 @@ class App(QMainWindow, Ui_MainWindow):
             result = self.__dictionary.addWord(word)
             if result:
                 self.__updateTable()
+
+    def __onSelectionChange(self):
+        self.removeWordButton.setDisabled(not self.tableView.selectionModel().hasSelection())
+
+    def __onRemoveWordBtnClick(self):
+        words = []
+        for index in self.tableView.selectedIndexes():
+            if index.column() == Columns.word.value:
+                words.append(index.data())
+
+        result = showRemoveWordConfirm(self, words.copy())
+        if result:
+            self.__dictionary.removeWords(words)
+            self.__updateTable()
 
 
 def main():

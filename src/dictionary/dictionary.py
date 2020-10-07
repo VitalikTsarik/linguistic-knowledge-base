@@ -37,8 +37,9 @@ class Dictionary:
         self.__dictionary[word] = {Keys.occurrence.value: 0}
         return True
 
-    def removeWord(self, word):
-        self.__dictionary.pop(word)
+    def removeWords(self, words):
+        for word in words:
+            self.__dictionary.pop(word)
 
     @property
     def tableRecords(self):
