@@ -9,6 +9,7 @@ from dictionary.dictionary import Dictionary
 from dictionary.dictionary_model import DictionaryModel, ItemDelegate, Columns
 from gui.dialogs.add_word_dialog import showAddWordDialog
 from gui.dialogs.remove_word_confirm import showRemoveWordConfirm
+from gui.dialogs.tags_help import showTagsHelp
 from gui.gen.main_window import Ui_MainWindow
 
 
@@ -33,6 +34,7 @@ class App(QMainWindow, Ui_MainWindow):
         self.actionSave.triggered.connect(self.__onSave)
         self.actionSaveAs.triggered.connect(self.__onSaveAs)
         self.actionClose.triggered.connect(self.__onClose)
+        self.actionTags.triggered.connect(self.__onTagsHelp)
 
     def __initTable(self):
         self.tableView.setItemDelegate(ItemDelegate(self))
@@ -94,6 +96,9 @@ class App(QMainWindow, Ui_MainWindow):
         self.actionSave.setDisabled(True)
         self.menuEditText.setDisabled(True)
         self.menuEditText.clear()
+
+    def __onTagsHelp(self):
+        showTagsHelp(self)
 
     def __onItemEdited(self, word, index: QModelIndex):
         if index.column() == Columns.word.value:
