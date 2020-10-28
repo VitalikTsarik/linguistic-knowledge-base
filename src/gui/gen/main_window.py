@@ -45,6 +45,12 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addLayout(self.verticalLayout)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setObjectName("label")
+        self.horizontalLayout.addWidget(self.label)
+        self.searchLineEdit = QtWidgets.QLineEdit(self.centralwidget)
+        self.searchLineEdit.setObjectName("searchLineEdit")
+        self.horizontalLayout.addWidget(self.searchLineEdit)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
         self.addWordButton = QtWidgets.QPushButton(self.centralwidget)
@@ -93,6 +99,8 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.label.setText(_translate("MainWindow", "Search"))
+        self.searchLineEdit.setPlaceholderText(_translate("MainWindow", "Start typing a word"))
         self.addWordButton.setText(_translate("MainWindow", "Add"))
         self.removeWordButton.setText(_translate("MainWindow", "Remove"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))

@@ -1,4 +1,5 @@
 import typing
+
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt, pyqtSignal
 from PyQt5.QtWidgets import QStyledItemDelegate, QWidget
 
@@ -16,19 +17,21 @@ class DictionaryModel(QAbstractTableModel):
     def __init__(self, *args, records=None, order=Qt.DescendingOrder, **kwargs):
         super(DictionaryModel, self).__init__(*args, **kwargs)
         self.__records = records or []
+        self.__searchPrefix = ''
+        self.__searchedRecords = None
         self.sort(Columns.word, order)
 
     @property
     def records(self):
-        return self.__records
+        return self.__records if self.__searchedRecords is None else self.__searchedRecords
 
     def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if role == Qt.DisplayRole:
-            return self.__records[index.row()][index.column()]
+            return self.records[index.row()][index.column()]
 
     def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
         self.layoutAboutToBeChanged.emit()
-        self.__records.sort(key=columnSortMap.get(column), reverse=order == Qt.AscendingOrder)
+        self.records.sort(key=columnSortMap.get(column), reverse=order == Qt.AscendingOrder)
         self.layoutChanged.emit()
 
     def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
@@ -40,10 +43,11 @@ class DictionaryModel(QAbstractTableModel):
     def updateRecords(self, newRecords):
         self.layoutAboutToBeChanged.emit()
         self.__records = newRecords
+        self.searchRecords(self.__searchPrefix)
         self.layoutChanged.emit()
 
     def rowCount(self, parent: QModelIndex = ...) -> int:
-        return len(self.__records)
+        return len(self.records)
 
     def columnCount(self, parent: QModelIndex = ...) -> int:
         return 2
@@ -59,6 +63,16 @@ class DictionaryModel(QAbstractTableModel):
         if index.column() == Columns.word:
             flags |= Qt.ItemIsEditable
         return flags
+
+    def searchRecords(self, prefix):
+        self.layoutAboutToBeChanged.emit()
+        self.__searchPrefix = prefix
+        if prefix == '':
+            self.__searchedRecords = None
+        else:
+            self.__searchedRecords = [rec for rec in self.__records if
+                                      rec[Columns.word.value].lower().startswith(prefix)]
+        self.layoutChanged.emit()
 
 
 class ItemDelegate(QStyledItemDelegate):

@@ -22,6 +22,7 @@ class App(QMainWindow, Ui_MainWindow):
     def __initUI(self):
         self.__initMenu()
         self.__initTable()
+        self.searchLineEdit.textEdited.connect(self.__onSearchInput)
         self.addWordButton.clicked.connect(self.__onAddWordBtnClick)
         self.removeWordButton.clicked.connect(self.__onRemoveWordBtnClick)
 
@@ -119,6 +120,9 @@ class App(QMainWindow, Ui_MainWindow):
         if result:
             self.__dictionary.removeWords(words)
             self.__updateTable()
+
+    def __onSearchInput(self, text):
+        self.tableView.model().searchRecords(text.lower())
 
 
 def main():
