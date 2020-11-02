@@ -3,6 +3,8 @@ import re
 from os import listdir
 from os.path import join
 
+import nltk
+
 from dictionary.constants import Keys
 
 
@@ -31,21 +33,39 @@ def processRawTexts(filenames):
     return result
 
 
-def readTexts(filenames):
+def readAndTagTexts(filenames):
     words = processRawTexts(filenames)
+    taggedWords = nltk.pos_tag(words)
     data = {}
-    for word in words:
+    for word, tag in taggedWords:
         if word in data.keys():
             data[word][Keys.occurrence.value] += 1
         else:
-            data[word] = {Keys.occurrence.value: 1}
+            data[word] = {
+                Keys.occurrence.value: 1,
+                Keys.tag.value: tag,
+            }
+    taggedTexts = tagTexts(filenames, taggedWords)
+    return data, taggedTexts
 
-    return data
+
+def tagTexts(filenames, taggedWords):
+    taggedTexts = {}
+    for filename in filenames:
+        with open(filename, 'r', encoding='utf-8', errors='ignore') as file:
+            text = file.read()
+
+            replacements = dict((re.escape(word), f'{word}_{tag}') for word, tag in taggedWords)
+            pattern = re.compile("|".join(replacements.keys()))
+            text = pattern.sub(lambda m: replacements[re.escape(m.group(0))], text)
+
+            taggedTexts[filename] = text
+    return taggedTexts
 
 
 def readTextsFromDir(path):
     filenames = [join(path, filename) for filename in listdir(path)]
-    return readTexts(filenames)
+    return readAndTagTexts(filenames)
 
 
 def mergeDicts(a, b):
@@ -54,7 +74,10 @@ def mergeDicts(a, b):
         if key in result.keys():
             result[key][Keys.occurrence.value] += value[Keys.occurrence.value]
         else:
-            result[key] = {Keys.occurrence.value: value[Keys.occurrence.value]}
+            result[key] = {
+                Keys.occurrence.value: value[Keys.occurrence.value],
+                Keys.tag.value: value[Keys.tag.value],
+            }
     return result
 
 
@@ -71,6 +94,7 @@ def openDictionary(filename):
         return dictionary, texts
 
 
-def saveTextToTempDir(textData, dirPath):
-    with open(join(dirPath, textData['name']), 'w', encoding='utf-8') as file:
-        file.write(textData['content'])
+def tagWord(word):
+    tokens = nltk.pos_tag([word])
+    _, tag = tokens[0]
+    return tag

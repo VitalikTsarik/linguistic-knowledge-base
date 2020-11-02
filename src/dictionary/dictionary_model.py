@@ -5,11 +5,12 @@ from PyQt5.QtWidgets import QStyledItemDelegate, QWidget
 
 from dictionary.constants import Columns
 
-HEADERS = ['Word', 'Occurrence']
+HEADERS = ['Word', 'Occurrence', 'Tag']
 
 columnSortMap = {
-    Columns.word.value: lambda record: record[0].lower(),
-    Columns.occurrence.value: lambda record: record[1],
+    Columns.word.value: lambda record: record[Columns.word.value].lower(),
+    Columns.occurrence.value: lambda record: record[Columns.occurrence.value],
+    Columns.tag.value: lambda record: record[Columns.tag.value]
 }
 
 
@@ -50,7 +51,7 @@ class DictionaryModel(QAbstractTableModel):
         return len(self.records)
 
     def columnCount(self, parent: QModelIndex = ...) -> int:
-        return 2
+        return len(Columns)
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:

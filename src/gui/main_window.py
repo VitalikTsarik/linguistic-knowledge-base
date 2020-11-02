@@ -1,8 +1,7 @@
-import sys
 from os.path import basename
 
 from PyQt5.QtCore import QModelIndex
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QAction
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QAction
 
 from constants import DICTIONARIES_PATH, TEXTS_PATH
 from dictionary.dictionary import Dictionary
@@ -13,9 +12,9 @@ from gui.dialogs.tags_help import showTagsHelp
 from gui.gen.main_window import Ui_MainWindow
 
 
-class App(QMainWindow, Ui_MainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
-        super(App, self).__init__(parent)
+        super().__init__(parent)
         self.__dictionary = Dictionary()
         self.setupUi(self)
         self.__initUI()
@@ -34,6 +33,7 @@ class App(QMainWindow, Ui_MainWindow):
         self.actionSave.triggered.connect(self.__onSave)
         self.actionSaveAs.triggered.connect(self.__onSaveAs)
         self.actionClose.triggered.connect(self.__onClose)
+        self.menuEditText.setDisabled(True)
         self.actionTags.triggered.connect(self.__onTagsHelp)
 
     def __initTable(self):
@@ -55,6 +55,7 @@ class App(QMainWindow, Ui_MainWindow):
             self.__addTextMenuItems(filenames)
 
     def __addTextMenuItems(self, filenames):
+        self.menuEditText.setDisabled(False)
         for filename in filenames:
             textName = basename(filename)
             action = QAction(textName, self.menuEditText)
@@ -81,11 +82,10 @@ class App(QMainWindow, Ui_MainWindow):
         filename, _ = QFileDialog.getOpenFileName(self, 'Open dictionary', DICTIONARIES_PATH,
                                                   'Dictionary Files (*.dict)')
         if filename:
-            self.__dictionary.readFromFile(filename)
+            self.__dictionary.open(filename)
             self.__updateTable()
 
             self.actionSave.setDisabled(False)
-            self.menuEditText.setDisabled(False)
             self.menuEditText.clear()
             self.__addTextMenuItems(self.__dictionary.textsNames)
 
@@ -128,14 +128,3 @@ class App(QMainWindow, Ui_MainWindow):
 
     def __onSearchInput(self, text):
         self.tableView.model().searchRecords(text.lower())
-
-
-def main():
-    app = QApplication(sys.argv)
-    form = App()
-    form.show()
-    app.exec_()
-
-
-if __name__ == '__main__':
-    main()
