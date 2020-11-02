@@ -26,10 +26,15 @@ class TagsHelp(QDialog, Ui_TagsHelp):
         return "\n".join(tagsStrings)
 
 
+dialog = None
+
+
 def showTagsHelp(parent):
+    global dialog
+    if dialog is not None:
+        dialog.close()
     dialog = TagsHelp(parent)
-    if dialog.exec_():
-        return dialog.result()
+    dialog.show()
 
 
 if __name__ == '__main__':

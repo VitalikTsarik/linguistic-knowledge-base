@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_TagsHelp(object):
     def setupUi(self, TagsHelp):
         TagsHelp.setObjectName("TagsHelp")
-        TagsHelp.resize(473, 376)
+        TagsHelp.resize(642, 654)
         self.verticalLayout = QtWidgets.QVBoxLayout(TagsHelp)
         self.verticalLayout.setObjectName("verticalLayout")
         self.textBrowser = QtWidgets.QTextBrowser(TagsHelp)
