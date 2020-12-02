@@ -1,11 +1,28 @@
-import json
+import pickle
 import re
-from os import listdir
-from os.path import join
+from fileinput import FileInput
 
 import nltk
 
 from dictionary.constants import Keys
+
+PUNCTUATION = [
+    ('.', '.'),
+    ('!', '.'),
+    ('?', '.'),
+    (',', ','),
+    ('(', '('),
+    ('[', '('),
+    ('{', '('),
+    (')', ')'),
+    (']', ')'),
+    ('}', ')'),
+    ('\"', '\"'),
+    ('\'', '\"'),
+    (':', ':'),
+    (';', ':'),
+    ('-', '-'),
+]
 
 
 def processRawTexts(filenames):
@@ -33,7 +50,7 @@ def processRawTexts(filenames):
     return result
 
 
-def readAndTagTexts(filenames):
+def readTexts(filenames):
     words = processRawTexts(filenames)
     taggedWords = nltk.pos_tag(words)
     data = {}
@@ -43,8 +60,14 @@ def readAndTagTexts(filenames):
         else:
             data[word] = {
                 Keys.occurrence.value: 1,
-                Keys.tag.value: tag,
+                Keys.tags.value: {tag},
             }
+    return data, taggedWords
+
+
+def readAndTagTexts(filenames):
+    data, taggedWords = readTexts(filenames)
+    taggedWords.extend(PUNCTUATION)
     taggedTexts = tagTexts(filenames, taggedWords)
     return data, taggedTexts
 
@@ -54,18 +77,13 @@ def tagTexts(filenames, taggedWords):
     for filename in filenames:
         with open(filename, 'r', encoding='utf-8', errors='ignore') as file:
             text = file.read()
-
+            text = text.replace('.', ' .')
+            text = text.replace(',', ' ,')
             replacements = dict((re.escape(word), f'{word}_{tag}') for word, tag in taggedWords)
             pattern = re.compile("|".join(replacements.keys()))
             text = pattern.sub(lambda m: replacements[re.escape(m.group(0))], text)
-
             taggedTexts[filename] = text
     return taggedTexts
-
-
-def readTextsFromDir(path):
-    filenames = [join(path, filename) for filename in listdir(path)]
-    return readAndTagTexts(filenames)
 
 
 def mergeDicts(a, b):
@@ -73,22 +91,23 @@ def mergeDicts(a, b):
     for key, value in b.items():
         if key in result.keys():
             result[key][Keys.occurrence.value] += value[Keys.occurrence.value]
+            # TODO: merge tags set
         else:
             result[key] = {
                 Keys.occurrence.value: value[Keys.occurrence.value],
-                Keys.tag.value: value[Keys.tag.value],
+                Keys.tags.value: value[Keys.tags.value],
             }
     return result
 
 
 def saveToFile(filename, data):
-    with open(filename, 'w', encoding='utf-8') as file:
-        json.dump(data, file)
+    with open(filename, 'wb') as file:
+        pickle.dump(data, file)
 
 
 def openDictionary(filename):
-    with open(filename, 'r', encoding='utf-8') as file:
-        data = json.load(file)
+    with open(filename, 'rb') as file:
+        data = pickle.load(file)
         dictionary = data['data']
         texts = data['texts']
         return dictionary, texts
@@ -97,4 +116,15 @@ def openDictionary(filename):
 def tagWord(word):
     tokens = nltk.pos_tag([word])
     _, tag = tokens[0]
-    return tag
+    return {tag}
+
+
+def replaceWord(oldWord, newWord, filenames):
+    for filename in filenames:
+        with FileInput(filename, inplace=True, backup='.bak') as file:
+            for line in file:
+                line.replace(rf'\b{oldWord}\b', newWord)
+
+
+def removeWord(word, filenames):
+    replaceWord(word, '', filenames)

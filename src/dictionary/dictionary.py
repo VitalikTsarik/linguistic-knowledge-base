@@ -3,12 +3,15 @@ from os.path import basename, join
 from shutil import copyfile
 from tempfile import TemporaryDirectory
 
+import nltk
 from editor import editor
 
 from dictionary.constants import Keys
-from dictionary.helpers import saveToFile, openDictionary, readAndTagTexts, mergeDicts, readTextsFromDir, tagWord
+from dictionary.helpers import saveToFile, openDictionary, readAndTagTexts, mergeDicts, tagWord, \
+    readTexts, removeWord
 
 TAGGED_POSTFIX = '.tagged'
+AVAILABLE_TAGS = set(nltk.load('help/tagsets/upenn_tagset.pickle'))
 
 
 class Dictionary:
@@ -24,7 +27,7 @@ class Dictionary:
 
         textsData, taggedTexts = readAndTagTexts(filenames)
         for filename, text in taggedTexts.items():
-            tempFilename = self.__getTaggedFilename(join(self.__tempDir.name, basename(filename)))
+            tempFilename = self.getTaggedFilename(join(self.__tempDir.name, basename(filename)))
             with open(tempFilename, 'w') as file:
                 file.write(text)
 
@@ -32,11 +35,19 @@ class Dictionary:
 
     def editText(self, filename):
         editor(filename=join(self.__tempDir.name, filename))
-        self.__dictionary = readTextsFromDir(self.__tempDir.name)
+        filenames = self.textsTempFilenames
+        self.__dictionary, _ = readTexts(filenames)
+
+    def editTaggedText(self, filename):
+        editor(filename=join(self.__tempDir.name, filename))
 
     @property
     def textsNames(self):
         return [name for name in listdir(self.__tempDir.name) if not name.endswith(TAGGED_POSTFIX)]
+
+    @property
+    def taggedTextsNames(self):
+        return [name for name in listdir(self.__tempDir.name) if name.endswith(TAGGED_POSTFIX)]
 
     def addWord(self, word):
         if word in self.__dictionary:
@@ -44,12 +55,13 @@ class Dictionary:
 
         self.__dictionary[word] = {
             Keys.occurrence.value: 0,
-            Keys.tag.value: tagWord(word),
+            Keys.tags.value: tagWord(word),
         }
         return True
 
     def removeWords(self, words):
         for word in words:
+            removeWord(word, self.textsTempFilenames)
             self.__dictionary.pop(word)
 
     @property
@@ -57,7 +69,7 @@ class Dictionary:
         return [[
             key,
             value[Keys.occurrence.value],
-            value[Keys.tag.value],
+            ','.join(value[Keys.tags.value]),
         ] for key, value in self.__dictionary.items()]
 
     def save(self, filename=None):
@@ -66,11 +78,11 @@ class Dictionary:
 
         texts = []
         for textName in self.textsNames:
-            filePath = join(self.__tempDir.name, textName)
+            filePath = self.getTempTextPath(textName)
             texts.append({
                 'name': textName,
                 'content': open(filePath, 'r').read(),
-                'tagged': open(self.__getTaggedFilename(filePath), 'r').read()
+                'tagged': open(self.getTaggedFilename(filePath), 'r').read()
             })
         data = {
             'data': self.__dictionary,
@@ -79,13 +91,14 @@ class Dictionary:
         saveToFile(self.__currentFilename, data)
 
     def open(self, filename):
+        ','.join({'NN', 'NP'})
         self.__tempDir = TemporaryDirectory()
         self.__dictionary, texts = openDictionary(filename)
         for textData in texts:
             tempFilePath = join(self.__tempDir.name, textData['name'])
             with open(tempFilePath, 'w', encoding='utf-8') as file:
                 file.write(textData['content'])
-            with open(self.__getTaggedFilename(tempFilePath), 'w', encoding='utf-8') as file:
+            with open(self.getTaggedFilename(tempFilePath), 'w', encoding='utf-8') as file:
                 file.write(textData['tagged'])
 
         self.__currentFilename = filename
@@ -96,16 +109,31 @@ class Dictionary:
         self.__tempDir.cleanup()
 
     def editWord(self, oldWord, newWord):
+        if not newWord:
+            return
+
         newWordData = self.__dictionary.get(newWord)
         if newWordData is None:
             newWordData = {
                 Keys.occurrence.value: 0,
-                Keys.tag.value: tagWord(newWord),
+                Keys.tags.value: tagWord(newWord),
             }
         newWordData[Keys.occurrence.value] += self.__dictionary[oldWord][Keys.occurrence.value]
         self.__dictionary[newWord] = newWordData
         self.__dictionary.pop(oldWord)
 
+    def editTags(self, word, newTags):
+        tags = set(newTags.replace(' ', '').split(','))
+        if all(tag in AVAILABLE_TAGS for tag in tags):
+            self.__dictionary[word][Keys.tags.value] = tags
+
     @staticmethod
-    def __getTaggedFilename(filename):
+    def getTaggedFilename(filename):
         return filename + TAGGED_POSTFIX
+
+    def getTempTextPath(self, textName):
+        return join(self.__tempDir.name, textName)
+
+    @property
+    def textsTempFilenames(self):
+        return [self.getTempTextPath(textName) for textName in self.textsNames]

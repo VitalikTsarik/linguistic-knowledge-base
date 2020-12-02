@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>637</width>
-    <height>691</height>
+    <width>724</width>
+    <height>707</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -126,7 +126,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>637</width>
+     <width>724</width>
      <height>20</height>
     </rect>
    </property>
@@ -148,8 +148,15 @@
       <string>Edit text</string>
      </property>
     </widget>
+    <widget class="QMenu" name="menuEditTaggedText">
+     <property name="title">
+      <string>Edit tagged text</string>
+     </property>
+    </widget>
     <addaction name="actionAddText"/>
+    <addaction name="separator"/>
     <addaction name="menuEditText"/>
+    <addaction name="menuEditTaggedText"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -205,6 +212,11 @@
   <action name="actionTags">
    <property name="text">
     <string>Tags</string>
+   </property>
+  </action>
+  <action name="actionj">
+   <property name="text">
+    <string>j</string>
    </property>
   </action>
  </widget>

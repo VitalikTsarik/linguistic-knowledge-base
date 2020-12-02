@@ -5,18 +5,18 @@ from PyQt5.QtWidgets import QStyledItemDelegate, QWidget
 
 from dictionary.constants import Columns
 
-HEADERS = ['Word', 'Occurrence', 'Tag']
+HEADERS = ['Word', 'Occurrence', 'Tags']
 
 columnSortMap = {
     Columns.word.value: lambda record: record[Columns.word.value].lower(),
     Columns.occurrence.value: lambda record: record[Columns.occurrence.value],
-    Columns.tag.value: lambda record: record[Columns.tag.value]
+    Columns.tags.value: lambda record: record[Columns.tags.value]
 }
 
 
-class DictionaryModel(QAbstractTableModel):
+class DictionaryTableModel(QAbstractTableModel):
     def __init__(self, *args, records=None, order=Qt.DescendingOrder, **kwargs):
-        super(DictionaryModel, self).__init__(*args, **kwargs)
+        super(DictionaryTableModel, self).__init__(*args, **kwargs)
         self.__records = records or []
         self.__searchPrefix = ''
         self.__searchedRecords = None
@@ -61,7 +61,7 @@ class DictionaryModel(QAbstractTableModel):
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
         flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
-        if index.column() == Columns.word:
+        if index.column() == Columns.word or index.column() == Columns.tags:
             flags |= Qt.ItemIsEditable
         return flags
 
@@ -82,7 +82,7 @@ class ItemDelegate(QStyledItemDelegate):
     def destroyEditor(self, editor, index: QModelIndex):
         super(ItemDelegate, self).destroyEditor(editor, index)
 
-    def setModelData(self, editor: QWidget, model: DictionaryModel, index: QModelIndex) -> None:
+    def setModelData(self, editor: QWidget, model: DictionaryTableModel, index: QModelIndex) -> None:
         word = model.records[index.row()][Columns.word]
         super(ItemDelegate, self).setModelData(editor, model, index)
         self.itemEdited.emit(word, index)

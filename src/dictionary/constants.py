@@ -3,10 +3,10 @@ from enum import IntEnum, Enum
 
 class Keys(Enum):
     occurrence = 'occurrence'
-    tag = 'tag'
+    tags = 'tags'
 
 
 class Columns(IntEnum):
     word = 0
     occurrence = 1
-    tag = 2
+    tags = 2

@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QMainWindow, QFileDialog, QAction
 
 from constants import DICTIONARIES_PATH, TEXTS_PATH
 from dictionary.dictionary import Dictionary
-from dictionary.dictionary_model import DictionaryModel, ItemDelegate, Columns
+from dictionary.dictionary_table_model import DictionaryTableModel, ItemDelegate, Columns
 from gui.dialogs.add_word_dialog import showAddWordDialog
 from gui.dialogs.remove_word_confirm import showRemoveWordConfirm
 from gui.dialogs.tags_help import showTagsHelp
@@ -34,12 +34,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionSaveAs.triggered.connect(self.__onSaveAs)
         self.actionClose.triggered.connect(self.__onClose)
         self.menuEditText.setDisabled(True)
+        self.menuEditTaggedText.setDisabled(True)
         self.actionTags.triggered.connect(self.__onTagsHelp)
 
     def __initTable(self):
         self.tableView.setItemDelegate(ItemDelegate(self))
         self.tableView.itemDelegate().itemEdited.connect(self.__onItemEdited)
-        self.tableView.setModel(DictionaryModel(records=self.__dictionary.tableRecords))
+        self.tableView.setModel(DictionaryTableModel(records=self.__dictionary.tableRecords))
         self.tableView.selectionModel().selectionChanged.connect(self.__onSelectionChange)
         self.removeWordButton.setDisabled(True)
 
@@ -53,6 +54,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.__dictionary.addTexts(filenames)
             self.__updateTable()
             self.__addTextMenuItems(filenames)
+            self.__addTaggedTextMenuItems([Dictionary.getTaggedFilename(filename) for filename in filenames])
 
     def __addTextMenuItems(self, filenames):
         self.menuEditText.setDisabled(False)
@@ -64,6 +66,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def __onEditText(self, name):
         self.__dictionary.editText(name)
+        self.__updateTable()
+
+    def __addTaggedTextMenuItems(self, filenames):
+        self.menuEditTaggedText.setDisabled(False)
+        for filename in filenames:
+            textName = basename(filename)
+            action = QAction(textName, self.menuEditText)
+            action.triggered.connect(lambda chk, name=textName: self.__onEditTaggedText(name))
+            self.menuEditTaggedText.addAction(action)
+
+    def __onEditTaggedText(self, name):
+        self.__dictionary.editTaggedText(name)
         self.__updateTable()
 
     def __onSaveAs(self):
@@ -87,7 +101,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             self.actionSave.setDisabled(False)
             self.menuEditText.clear()
+            self.menuEditTaggedText.clear()
             self.__addTextMenuItems(self.__dictionary.textsNames)
+            self.__addTaggedTextMenuItems(self.__dictionary.taggedTextsNames)
 
     def __onClose(self):
         self.__dictionary.clear()
@@ -96,14 +112,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionSave.setDisabled(True)
         self.menuEditText.setDisabled(True)
         self.menuEditText.clear()
+        self.menuEditTaggedText.setDisabled(True)
+        self.menuEditTaggedText.clear()
 
     def __onTagsHelp(self):
         showTagsHelp(self)
 
-    def __onItemEdited(self, word, index: QModelIndex):
+    def __onItemEdited(self, oldValue, index: QModelIndex):
+        newValue = index.data()
         if index.column() == Columns.word.value:
-            self.__dictionary.editWord(word, index.data())
-            self.__updateTable()
+            self.__dictionary.editWord(oldValue, newValue)
+        elif index.column() == Columns.tags.value:
+            word = index.siblingAtColumn(Columns.word.value).data()
+            self.__dictionary.editTags(word, newValue)
+        self.__updateTable()
 
     def __onAddWordBtnClick(self):
         word = showAddWordDialog(self)
