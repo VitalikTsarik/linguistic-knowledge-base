@@ -8,7 +8,7 @@ from editor import editor
 
 from dictionary.constants import Keys
 from dictionary.helpers import saveToFile, openDictionary, readAndTagTexts, mergeDicts, tagWord, \
-    readTexts, removeWord
+    readTexts, getBaseForm
 
 TAGGED_POSTFIX = '.tagged'
 AVAILABLE_TAGS = set(nltk.load('help/tagsets/upenn_tagset.pickle'))
@@ -53,15 +53,16 @@ class Dictionary:
         if word in self.__dictionary:
             return False
 
+        tag = tagWord(word)
         self.__dictionary[word] = {
             Keys.occurrence.value: 0,
-            Keys.tags.value: tagWord(word),
+            Keys.tags.value: {tag},
+            Keys.base.value: {getBaseForm(word, tag)},
         }
         return True
 
     def removeWords(self, words):
         for word in words:
-            removeWord(word, self.textsTempFilenames)
             self.__dictionary.pop(word)
 
     @property
@@ -69,7 +70,8 @@ class Dictionary:
         return [[
             key,
             value[Keys.occurrence.value],
-            ','.join(value[Keys.tags.value]),
+            ', '.join(value[Keys.tags.value]),
+            ', '.join(value[Keys.base.value]),
         ] for key, value in self.__dictionary.items()]
 
     def save(self, filename=None):
@@ -91,7 +93,9 @@ class Dictionary:
         saveToFile(self.__currentFilename, data)
 
     def open(self, filename):
-        ','.join({'NN', 'NP'})
+        if self.__tempDir:
+            self.__tempDir.cleanup()
+
         self.__tempDir = TemporaryDirectory()
         self.__dictionary, texts = openDictionary(filename)
         for textData in texts:
@@ -116,7 +120,7 @@ class Dictionary:
         if newWordData is None:
             newWordData = {
                 Keys.occurrence.value: 0,
-                Keys.tags.value: tagWord(newWord),
+                Keys.tags.value: {tagWord(newWord)},
             }
         newWordData[Keys.occurrence.value] += self.__dictionary[oldWord][Keys.occurrence.value]
         self.__dictionary[newWord] = newWordData
@@ -126,6 +130,10 @@ class Dictionary:
         tags = set(newTags.replace(' ', '').split(','))
         if all(tag in AVAILABLE_TAGS for tag in tags):
             self.__dictionary[word][Keys.tags.value] = tags
+
+    def editBase(self, word, newBases):
+        bases = set(newBases.replace(' ', '').split(','))
+        self.__dictionary[word][Keys.base.value] = bases
 
     @staticmethod
     def getTaggedFilename(filename):

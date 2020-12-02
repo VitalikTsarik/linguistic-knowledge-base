@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>724</width>
-    <height>707</height>
+    <width>976</width>
+    <height>878</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -54,6 +54,9 @@
         </property>
         <property name="selectionBehavior">
          <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="textElideMode">
+         <enum>Qt::ElideRight</enum>
         </property>
         <property name="showGrid">
          <bool>true</bool>
@@ -126,7 +129,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>724</width>
+     <width>976</width>
      <height>20</height>
     </rect>
    </property>

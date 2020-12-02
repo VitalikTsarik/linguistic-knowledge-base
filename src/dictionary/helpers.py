@@ -3,13 +3,18 @@ import re
 from fileinput import FileInput
 
 import nltk
+from nltk import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+from nltk.corpus import wordnet
+from nltk.tag import pos_tag
 
 from dictionary.constants import Keys
 
-PUNCTUATION = [
+PUNCTUATION_TAGS = [
     ('.', '.'),
     ('!', '.'),
     ('?', '.'),
+    ('...', '.'),
     (',', ','),
     ('(', '('),
     ('[', '('),
@@ -19,55 +24,57 @@ PUNCTUATION = [
     ('}', ')'),
     ('\"', '\"'),
     ('\'', '\"'),
+    ('\'\'', '\"'),
     (':', ':'),
     (';', ':'),
     ('-', '-'),
 ]
 
+PUNCTUATION = [val for val, _ in PUNCTUATION_TAGS]
+
 
 def processRawTexts(filenames):
-    result = []
+    words = []
     for filename in filenames:
         with open(filename, 'r', encoding='utf-8', errors='ignore') as processed_file:
-            for line in processed_file:
-                sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=[.?!])', line)
-                for sentence in sentences:
-                    sentence = sentence.strip(' .?!"\'\n')
-                    sentence = sentence.replace('..', '')
-                    sentence = sentence.replace('--', '')
-                    if len(sentence) < 2:
-                        continue
-                    sentence = sentence[0].lower() + sentence[1:]
-                    sentence = re.sub(r'[^A-Za-z\' .-]', '', sentence)
-                    sentence = re.sub(r' +', ' ', sentence)
-                    words = sentence.split(' ')
-                    for word in words:
-                        word = word.strip('\' -')
-                        if word != '':
-                            if len(word) > 1 and not re.search(r'[A-Z]+[a-z]+$', word):
-                                word = word.lower()
-                            result.append(word)
-    return result
+            text = processed_file.read()
+            text = text.replace('\n', ' ')
+            text = re.sub('[^A-Za-z \'.]', '', text)
+            tokens = word_tokenize(text)
+            for token in tokens:
+                if token in PUNCTUATION:
+                    tokens.remove(token)
+            words.extend(tokens)
+    return words
 
 
-def readTexts(filenames):
-    words = processRawTexts(filenames)
+def processWords(words):
     taggedWords = nltk.pos_tag(words)
+
     data = {}
     for word, tag in taggedWords:
         if word in data.keys():
             data[word][Keys.occurrence.value] += 1
+            data[word][Keys.tags.value].add(tag)
+            data[word][Keys.base.value].add(getBaseForm(word, tag))
         else:
             data[word] = {
                 Keys.occurrence.value: 1,
                 Keys.tags.value: {tag},
+                Keys.base.value: {getBaseForm(word, tag)},
             }
+    return data, taggedWords
+
+
+def readTexts(filenames):
+    words = processRawTexts(filenames)
+    data, taggedWords = processWords(words)
     return data, taggedWords
 
 
 def readAndTagTexts(filenames):
     data, taggedWords = readTexts(filenames)
-    taggedWords.extend(PUNCTUATION)
+    taggedWords.extend(PUNCTUATION_TAGS)
     taggedTexts = tagTexts(filenames, taggedWords)
     return data, taggedTexts
 
@@ -96,6 +103,7 @@ def mergeDicts(a, b):
             result[key] = {
                 Keys.occurrence.value: value[Keys.occurrence.value],
                 Keys.tags.value: value[Keys.tags.value],
+                Keys.base.value: value[Keys.base.value],
             }
     return result
 
@@ -114,14 +122,43 @@ def openDictionary(filename):
 
 
 def tagWord(word):
-    tokens = nltk.pos_tag([word])
+    tokens = pos_tag([word])
     _, tag = tokens[0]
-    return {tag}
+    return tag
+
+
+def getWordnetPos(tag):
+    if tag.startswith('J'):
+        return wordnet.ADJ
+    elif tag.startswith('V'):
+        return wordnet.VERB
+    elif tag.startswith('R'):
+        return wordnet.ADV
+    return wordnet.NOUN
+
+
+def getTagFromPos(pos):
+    if pos == wordnet.ADJ:
+        return 'JJ'
+    elif pos == wordnet.VERB:
+        return 'VB'
+    elif pos == wordnet.ADV:
+        return 'RB'
+    return 'NN'
+
+
+lemmatizer = WordNetLemmatizer()
+
+
+def getBaseForm(word, tag):
+    pos = getWordnetPos(tag)
+    base = lemmatizer.lemmatize(word, pos)
+    return f'{base}_{tag}'
 
 
 def replaceWord(oldWord, newWord, filenames):
     for filename in filenames:
-        with FileInput(filename, inplace=True, backup='.bak') as file:
+        with FileInput(filename, inplace=True) as file:
             for line in file:
                 line.replace(rf'\b{oldWord}\b', newWord)
 

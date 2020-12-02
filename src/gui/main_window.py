@@ -125,6 +125,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         elif index.column() == Columns.tags.value:
             word = index.siblingAtColumn(Columns.word.value).data()
             self.__dictionary.editTags(word, newValue)
+        elif index.column() == Columns.base.value:
+            word = index.siblingAtColumn(Columns.word.value).data()
+            self.__dictionary.editBase(word, newValue)
         self.__updateTable()
 
     def __onAddWordBtnClick(self):

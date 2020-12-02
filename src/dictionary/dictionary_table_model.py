@@ -5,12 +5,13 @@ from PyQt5.QtWidgets import QStyledItemDelegate, QWidget
 
 from dictionary.constants import Columns
 
-HEADERS = ['Word', 'Occurrence', 'Tags']
+HEADERS = ['Word', 'Occurrence', 'Tags', 'Base Forms']
 
 columnSortMap = {
     Columns.word.value: lambda record: record[Columns.word.value].lower(),
     Columns.occurrence.value: lambda record: record[Columns.occurrence.value],
-    Columns.tags.value: lambda record: record[Columns.tags.value]
+    Columns.tags.value: lambda record: record[Columns.tags.value],
+    Columns.base.value: lambda record: record[Columns.base.value],
 }
 
 
@@ -61,7 +62,7 @@ class DictionaryTableModel(QAbstractTableModel):
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
         flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
-        if index.column() == Columns.word or index.column() == Columns.tags:
+        if index.column() in (Columns.word, Columns.tags, Columns.base):
             flags |= Qt.ItemIsEditable
         return flags
 
