@@ -53,7 +53,7 @@ def processWords(words):
 
     data = {}
     for word, tag in taggedWords:
-        if word in data.keys():
+        if word in data:
             data[word][Keys.occurrence.value] += 1
             data[word][Keys.tags.value].add(tag)
             data[word][Keys.base.value].add(getBaseForm(word, tag))

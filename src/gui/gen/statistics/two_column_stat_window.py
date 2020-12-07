@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'statistics/tags.ui'
+# Form implementation generated from reading ui file 'statistics/two_column_stat_window.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.1
 #
@@ -11,13 +11,13 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_Tags(object):
-    def setupUi(self, Tags):
-        Tags.setObjectName("Tags")
-        Tags.resize(396, 555)
-        self.verticalLayout = QtWidgets.QVBoxLayout(Tags)
+class Ui_twoColumnStatWindow(object):
+    def setupUi(self, twoColumnStatWindow):
+        twoColumnStatWindow.setObjectName("twoColumnStatWindow")
+        twoColumnStatWindow.resize(455, 555)
+        self.verticalLayout = QtWidgets.QVBoxLayout(twoColumnStatWindow)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.tableWidget = QtWidgets.QTableWidget(Tags)
+        self.tableWidget = QtWidgets.QTableWidget(twoColumnStatWindow)
         self.tableWidget.setAutoFillBackground(False)
         self.tableWidget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustIgnored)
         self.tableWidget.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
@@ -36,25 +36,25 @@ class Ui_Tags(object):
         self.tableWidget.setHorizontalHeaderItem(1, item)
         self.tableWidget.horizontalHeader().setVisible(True)
         self.tableWidget.horizontalHeader().setCascadingSectionResizes(False)
+        self.tableWidget.horizontalHeader().setDefaultSectionSize(180)
         self.tableWidget.horizontalHeader().setMinimumSectionSize(1)
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
         self.verticalLayout.addWidget(self.tableWidget)
-        self.buttonBox = QtWidgets.QDialogButtonBox(Tags)
+        self.buttonBox = QtWidgets.QDialogButtonBox(twoColumnStatWindow)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setCenterButtons(False)
         self.buttonBox.setObjectName("buttonBox")
         self.verticalLayout.addWidget(self.buttonBox)
 
-        self.retranslateUi(Tags)
-        self.buttonBox.accepted.connect(Tags.accept)
-        QtCore.QMetaObject.connectSlotsByName(Tags)
+        self.retranslateUi(twoColumnStatWindow)
+        self.buttonBox.accepted.connect(twoColumnStatWindow.accept)
+        QtCore.QMetaObject.connectSlotsByName(twoColumnStatWindow)
 
-    def retranslateUi(self, Tags):
+    def retranslateUi(self, twoColumnStatWindow):
         _translate = QtCore.QCoreApplication.translate
-        Tags.setWindowTitle(_translate("Tags", "Tags Statistic"))
         self.tableWidget.setSortingEnabled(True)
         item = self.tableWidget.horizontalHeaderItem(0)
-        item.setText(_translate("Tags", "Tag"))
+        item.setText(_translate("twoColumnStatWindow", "FirstColumn"))
         item = self.tableWidget.horizontalHeaderItem(1)
-        item.setText(_translate("Tags", "Count"))
+        item.setText(_translate("twoColumnStatWindow", "SecondCoumn"))

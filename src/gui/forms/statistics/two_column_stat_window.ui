@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Tags</class>
- <widget class="QDialog" name="Tags">
+ <class>twoColumnStatWindow</class>
+ <widget class="QDialog" name="twoColumnStatWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>396</width>
+    <width>455</width>
     <height>555</height>
    </rect>
-  </property>
-  <property name="windowTitle">
-   <string>Tags Statistic</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -55,17 +52,20 @@
      <attribute name="horizontalHeaderMinimumSectionSize">
       <number>1</number>
      </attribute>
+     <attribute name="horizontalHeaderDefaultSectionSize">
+      <number>180</number>
+     </attribute>
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
      </attribute>
      <column>
       <property name="text">
-       <string>Tag</string>
+       <string>FirstColumn</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Count</string>
+       <string>SecondCoumn</string>
       </property>
      </column>
     </widget>
@@ -90,7 +90,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Tags</receiver>
+   <receiver>twoColumnStatWindow</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
