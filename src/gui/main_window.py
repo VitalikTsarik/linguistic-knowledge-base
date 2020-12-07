@@ -10,6 +10,7 @@ from gui.dialogs.add_word_dialog import showAddWordDialog
 from gui.dialogs.remove_word_confirm import showRemoveWordConfirm
 from gui.dialogs.tags_help import showTagsHelp
 from gui.gen.main_window import Ui_MainWindow
+from gui.statistics.tags_pairs import showTagsPairs
 from gui.statistics.word_tag_pairs import showWordTagPairs
 from gui.statistics.tags import showTags
 
@@ -40,6 +41,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionTags.triggered.connect(self.__onTagsHelp)
         self.actionStatTags.triggered.connect(self.__onStatTags)
         self.actionStatWordTagPairs.triggered.connect(self.__onStatWordTagPairs)
+        self.actionStatTagsPairs.triggered.connect(self.__onStatTagsPairs)
 
     def __initTable(self):
         self.tableView.setItemDelegate(ItemDelegate(self))
@@ -110,7 +112,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.__addTaggedTextMenuItems(self.__dictionary.taggedTextsNames)
 
     def __onClose(self):
-        self.__dictionary.clear()
+        self.__dictionary.close()
         self.__updateTable()
 
         self.actionSave.setDisabled(True)
@@ -127,6 +129,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def __onStatWordTagPairs(self):
         showWordTagPairs(self, self.__dictionary.textsTempFilenames)
+
+    def __onStatTagsPairs(self):
+        showTagsPairs(self, self.__dictionary.textsTempFilenames)
 
     def __onItemEdited(self, oldValue, index: QModelIndex):
         newValue = index.data()

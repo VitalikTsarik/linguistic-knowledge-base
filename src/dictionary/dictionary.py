@@ -99,6 +99,10 @@ class Dictionary:
 
         self.__currentFilename = filename
 
+    def close(self):
+        self.clear()
+        self.__tempDir = TemporaryDirectory()
+
     def clear(self):
         self.__dictionary = {}
         self.__currentFilename = None

@@ -165,3 +165,7 @@ def replaceWord(oldWord, newWord, filenames):
 
 def removeWord(word, filenames):
     replaceWord(word, '', filenames)
+
+
+def getAvailableTags():
+    return sorted(nltk.data.load('help/tagsets/upenn_tagset.pickle'))
