@@ -167,8 +167,17 @@
     </property>
     <addaction name="actionTags"/>
    </widget>
+   <widget class="QMenu" name="menuStatistics">
+    <property name="title">
+     <string>Statistics</string>
+    </property>
+    <addaction name="actionStatTags"/>
+    <addaction name="actionStatWordTagPairs"/>
+    <addaction name="actionStatTagsPairs"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuText"/>
+   <addaction name="menuStatistics"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -220,6 +229,21 @@
   <action name="actionj">
    <property name="text">
     <string>j</string>
+   </property>
+  </action>
+  <action name="actionStatTags">
+   <property name="text">
+    <string>Tags</string>
+   </property>
+  </action>
+  <action name="actionStatWordTagPairs">
+   <property name="text">
+    <string>Word-Tag pairs</string>
+   </property>
+  </action>
+  <action name="actionStatTagsPairs">
+   <property name="text">
+    <string>Tags pairs</string>
    </property>
   </action>
  </widget>

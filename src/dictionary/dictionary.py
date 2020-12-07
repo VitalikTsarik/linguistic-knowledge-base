@@ -41,14 +41,6 @@ class Dictionary:
     def editTaggedText(self, filename):
         editor(filename=join(self.__tempDir.name, filename))
 
-    @property
-    def textsNames(self):
-        return [name for name in listdir(self.__tempDir.name) if not name.endswith(TAGGED_POSTFIX)]
-
-    @property
-    def taggedTextsNames(self):
-        return [name for name in listdir(self.__tempDir.name) if name.endswith(TAGGED_POSTFIX)]
-
     def addWord(self, word):
         if word in self.__dictionary:
             return False
@@ -135,6 +127,14 @@ class Dictionary:
         bases = set(newBases.replace(' ', '').split(','))
         self.__dictionary[word][Keys.base.value] = bases
 
+    @property
+    def textsNames(self):
+        return [name for name in listdir(self.__tempDir.name) if not name.endswith(TAGGED_POSTFIX)]
+
+    @property
+    def taggedTextsNames(self):
+        return [name for name in listdir(self.__tempDir.name) if name.endswith(TAGGED_POSTFIX)]
+
     @staticmethod
     def getTaggedFilename(filename):
         return filename + TAGGED_POSTFIX
@@ -145,3 +145,7 @@ class Dictionary:
     @property
     def textsTempFilenames(self):
         return [self.getTempTextPath(textName) for textName in self.textsNames]
+
+    @property
+    def taggedTextsTempFilenames(self):
+        return [self.getTempTextPath(textName) for textName in self.taggedTextsNames]

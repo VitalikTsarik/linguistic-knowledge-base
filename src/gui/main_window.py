@@ -10,6 +10,7 @@ from gui.dialogs.add_word_dialog import showAddWordDialog
 from gui.dialogs.remove_word_confirm import showRemoveWordConfirm
 from gui.dialogs.tags_help import showTagsHelp
 from gui.gen.main_window import Ui_MainWindow
+from gui.statistics.tags import showTags
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -36,6 +37,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.menuEditText.setDisabled(True)
         self.menuEditTaggedText.setDisabled(True)
         self.actionTags.triggered.connect(self.__onTagsHelp)
+        self.actionStatTags.triggered.connect(self.__onStatTags)
 
     def __initTable(self):
         self.tableView.setItemDelegate(ItemDelegate(self))
@@ -117,6 +119,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def __onTagsHelp(self):
         showTagsHelp(self)
+
+    def __onStatTags(self):
+        showTags(self, self.__dictionary.taggedTextsTempFilenames)
 
     def __onItemEdited(self, oldValue, index: QModelIndex):
         newValue = index.data()
