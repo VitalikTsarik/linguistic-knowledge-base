@@ -8,6 +8,7 @@ from dictionary.dictionary import Dictionary
 from dictionary.dictionary_table_model import DictionaryTableModel, ItemDelegate, Columns
 from gui.dialogs.add_word_dialog import showAddWordDialog
 from gui.dialogs.remove_word_confirm import showRemoveWordConfirm
+from gui.dialogs.search import showSearchDialog
 from gui.dialogs.tags_help import showTagsHelp
 from gui.gen.main_window import Ui_MainWindow
 from gui.statistics.tags_pairs import showTagsPairs
@@ -42,6 +43,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionStatTags.triggered.connect(self.__onStatTags)
         self.actionStatWordTagPairs.triggered.connect(self.__onStatWordTagPairs)
         self.actionStatTagsPairs.triggered.connect(self.__onStatTagsPairs)
+        self.menuSearch.aboutToShow.connect(self.__onSearch)
 
     def __initTable(self):
         self.tableView.setItemDelegate(ItemDelegate(self))
@@ -132,6 +134,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def __onStatTagsPairs(self):
         showTagsPairs(self, self.__dictionary.textsTempFilenames)
+
+    def __onSearch(self):
+        showSearchDialog(self.__dictionary.textsTempFilenames, self)
 
     def __onItemEdited(self, oldValue, index: QModelIndex):
         newValue = index.data()

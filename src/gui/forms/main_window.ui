@@ -175,8 +175,14 @@
     <addaction name="actionStatWordTagPairs"/>
     <addaction name="actionStatTagsPairs"/>
    </widget>
+   <widget class="QMenu" name="menuSearch">
+    <property name="title">
+     <string>Search</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuText"/>
+   <addaction name="menuSearch"/>
    <addaction name="menuStatistics"/>
    <addaction name="menuHelp"/>
   </widget>
